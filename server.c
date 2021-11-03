@@ -19,8 +19,11 @@ int main() {
 	struct sockaddr_in svr_sin, clt_sin;
 	int svr_sock, clt_sock;
 	int clt_len = sizeof(clt_sin);
-	char buf[BUFSIZ];
-
+	char buf[BUFSIZ] = {0, };
+	char file[BUFSIZ] = {0, };
+	char *temp_file, file_name[BUFSIZ] = {0, };
+	FILE *fp;
+	
 	if((svr_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
 		perror("socket");
 		exit(1);
@@ -64,7 +67,6 @@ int main() {
 						perror("recv of reset");
 						exit(1);
 					}
-
 					if(strcmp(buf, "reset") == 0) {
 						memset(buf, '\0', sizeof(buf));
 						printf("reset\n");
@@ -74,9 +76,54 @@ int main() {
       		    					perror("send of filelist");
          						exit(1);
 			        		}
-					} else if(strcmp(buf, "upload")) {
+					} else if(!strcmp(buf, "upload")) {
 						printf("upload\n");
-					} else if(strcmp(buf, "download")) {
+						strcpy(buf, "which file? : ");
+						if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { // 파일 선택 메세지 전송
+							perror("send of upload message");
+							exit(1);
+						}
+						memset(buf, '\0', BUFSIZ);
+						if(recv(clt_sock, buf, sizeof(buf), 0) == -1) { // 파일 경로와 내용 전달 받음
+							perror("recv of file");
+							exit(1);
+						}
+						temp_file = strtok(buf, "\n"); // \n으로 파일의 이름과 파일 내용을 구분
+						temp_file = strtok(NULL, "\n");
+						while(temp_file != NULL) { // 파일 내용을 하나의 문자열로 저장 - file
+							strcat(file, temp_file);
+							strcat(file, "\n");
+							temp_file = strtok(NULL, "\n");
+						}
+						temp_file = strtok(buf, "/");
+						while(temp_file != NULL) { // 파일 경로에서 파일명만 추출
+							strcpy(file_name, temp_file);
+							temp_file = strtok(NULL, "/");
+						}
+						strcpy(buf, "./filelist/"); // 서버의 filelist디렉토리에 저장하기 위해 경로 추가
+						strcat(buf, file_name); // 서버의 저장될 파일 경로 - buf
+
+						if((fp = fopen(buf, "w")) == NULL) { 
+							perror("file open");
+							exit(1);
+						}
+						fputs(file, fp); // 서버에 파일 저장
+						fclose(fp);
+						
+						if((fp = fopen("./filelist.txt", "a")) == NULL) {
+							perror("file open");
+							exit(1);
+						}
+						fputs(file_name, fp); // 리스트에 파일 추가
+						fputs("\n", fp);
+						fclose(fp);
+						strcpy(buf, "upload completed\n");
+						if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { // 파일 저장 완료 메세지 전송
+							perror("send of sucess message");
+							exit(1);
+						}
+
+					} else if(!strcmp(buf, "download")) {
 						printf("download\n");
 					} else {
 						printf("not found\n");
