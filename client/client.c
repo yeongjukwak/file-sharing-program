@@ -44,9 +44,8 @@ int main(int argc, char* argv[]) {
 	printf("%s", buf);
 	
 	while(1) {
-		printf("choose: ");
 		memset(buf, '\0', BUFSIZ);
-		//printf("choose: ");
+		printf("choose: ");
 
 		scanf("%s", buf);
 
@@ -63,7 +62,7 @@ int main(int argc, char* argv[]) {
 		}
 		if(!strcmp(temp, "reset")) {	
 			printf("\n====filelist reset====\n");
-	        	printf("%s", buf);
+	    	printf("%s", buf);
 		}
 		else if(!strcmp(temp, "upload")) {
 			printf("\n====upload service====\n");

@@ -101,15 +101,14 @@ int main() {
 							strcpy(file_name, temp_file);
 							temp_file = strtok(NULL, "/");
 						}
-						
-						if(!fileexistcheck(file_name)) { // 파일명이 파일리스트에 존재하는가?
+						if(fileexistcheck(file_name)) { // 파일명이 파일리스트에 존재하는가?
 							strcpy(buf, "exist");
 							if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { // 이미 존재할 경우 exist 전송
 								perror("send of sucess message");
 								exit(1);
 							}
 						}
-						else { // 파일명이 존재하지 않을 경우(중복 x) 파일 저장 수행
+						else {
 							strcpy(buf, "./filelist/"); // 서버의 filelist디렉토리에 저장하기 위해 경로 추가
 							strcat(buf, file_name); // 서버의 저장될 파일 경로 - buf
 
@@ -119,7 +118,7 @@ int main() {
 							}
 							fputs(file, fp); // 서버에 파일 저장
 							fclose(fp);
-						
+					
 							if((fp = fopen("./filelist.txt", "a")) == NULL) {
 								perror("file open");
 								exit(1);
@@ -130,7 +129,7 @@ int main() {
 							strcpy(buf, "upload completed\n");
 							if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { // 파일 저장 완료 메세지 전송
 								perror("send of sucess message");
-								exit(1);
+								exit(1);							
 							}
 						}
 					} else if(!strcmp(buf, "download")) {
@@ -198,13 +197,13 @@ int fileexistcheck(char *filename) { // 파일리스트에 filename이 존재하
 	char list[BUFSIZ] = {0, };
 	filelist(list);
 	char *file;
-	file = strtok(list, "\n"); 
-	while(file != NULL)
-		file = strtok(NULL, "\n");
+	file = strtok(list, "\n");
+	while(file != NULL) {
 		if(!strcmp(filename, file)) {
 			printf("filename exists on the server\n");
-			return 0;
+			return 1;
 		}
+		file = strtok(NULL, "\n");
 	}
-	return 1;
+	return 0;
 }
