@@ -1,15 +1,46 @@
-# file-sharing-program
-시스템프로그래밍 텀프로젝트
+## 주제
+파일 공유 프로그램
 
 ## 팀원
-컴퓨터공학과 17학번 곽영주  
-컴퓨터공학과 17학번 양현규  
-컴퓨터공학과 17학번 박종건  
+곽영주<br>
+양현규<br>
+박종건<br>
 
-## 기록
-2021.11.02 - 소켓 통신 및 파일리스트 출력 구현 (초반)
+## 설명
 
-## 사용법
-1. 모든 파일 같은 위치에 저장
-2. $./server 실행
-3. $./client 127.0.0.1 9000 실행
+## 파일 구조
+&nbsp;**.**<br>
+├── **README.md**<br>
+├── **Makefile** [서버와 클라이언트 컴파일해주는 Makefile]<br>
+├── **server** [서버 실행파일]<br>
+├── **server.c** [서버 소스코드]<br>
+├── **filelist.sh** [공유된 파일리스트 가져오는 shellscript]<br>
+├── **filelist.txt** [공유된 파일리스트]<br>
+├── **filelist** [공유된 파일들이 들어있는 디렉토리]<br>
+└── **client**[클라이언트 관련 디렉토리]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── **client.c** [클라이언트 소스코드]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── **client1~n** [클라이언트 실행파일들]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── **download** [다운로드한 파일들이 있는 디렉토리]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── **upload** [업로드할 파일들이 있는 디렉토리]<br>
+
+
+## 프로그램 실행방법
+
+**환경 설정**
+```bash
+/* 모든 파일을 같은 위치(경로)상에 둔다. */
+$ chmod 777 filelist.sh
+$ make clean
+$ make all
+```
+
+**SERVER 실행**
+```bash
+$ ./server
+```
+
+**CLIENT 실행**
+```bash
+$ cd ./client
+$ ./client1 127.0.0.1 9000 /* ex */
+```
