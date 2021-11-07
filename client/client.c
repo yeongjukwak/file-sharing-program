@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 
 int main(int argc, char* argv[]) {
 	
@@ -14,6 +15,8 @@ int main(int argc, char* argv[]) {
 		printf("./client <IP> <PORT>\n");
 		exit(1);
 	}
+
+	signal(SIGINT, SIG_IGN);
 
 	char* ip = argv[1];
 	int port = atoi(argv[2]);
@@ -80,28 +83,26 @@ int main(int argc, char* argv[]) {
 		else if(!strcmp(buf, "upload")) { /* 파일 업로드 */
 			memset(buf, '\0', BUFSIZ);
 			memset(temp, '\0', BUFSIZ);
-<<<<<<< HEAD
 			
 			printf("\n======== [UPLOAD SERVICE] ========\n");
 			printf("Which file: ");
 
 			scanf("%s", buf);
-			
+				
 			/* 업로드할 파일 읽어오기 */
 			if((fp = fopen(buf, "r")) == NULL) {
-				perror("[UPLOAD] open file");
-=======
-			scanf("%s", buf); // 업로드할 파일명 buf에 저장
-				
-			if((fp = fopen(buf, "r")) == NULL) { // 파일 오픈
 				strcpy(buf, "fopen");
-				if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { // 파일이 없을 경우나 열지 못한 경우 fopen을 서버로 보내고 클라이언트 종료
-					perror("send of fail message");
+
+				/* 업로드할 파일을 열지 못한 경우 */
+				if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) {
+					perror("[UPLOAD] send of fail message");
 					exit(1);
 				}
-				perror("fopen");
->>>>>>> 63c25e97edf8d36f71f05fbeda8f4d2efda3d0e3
-				exit(1);
+
+				continue;
+
+				//perror("fopen");
+				//exit(1);
 			}
 
 			strcat(buf, "\n"); // 파일경로와  파일내용을 구분자('\n') 설정
@@ -164,40 +165,28 @@ int main(int argc, char* argv[]) {
 				perror("[DOWNLOAD] recv of file content");
 				exit(1);
 			}
-<<<<<<< HEAD
 
-			memset(temp, '\0', BUFSIZ);
-
-			/* 다운로드 위치 설정 */
-			printf("input file path (include file name): ");
-			scanf("%s", temp);
-
-			/* 다운로드 수행 */
-			if((fp = fopen(temp, "w")) == NULL) {
-				perror("fopen");
-				exit(1);
-			}
-			fputs(buf, fp);
-
-			printf("====== [DOWNLOAD COMPLETED] ======\n"); // 저장 완료
-			fclose(fp);
-=======
-			if(!strcmp(buf, "not exist")) { // not exist를 받은 경우 서버에 파일이 없음
+			/* 다운로드할 파일이 없는 경우 */
+			if(!strcmp(buf, "not exist")) {
 				printf("file dose not exist on the server\n");
 			}
-			else {
+			else { /* 다운로드할 파일이 존재하는 경우 */
 				memset(temp, '\0', BUFSIZ);
-				printf("input file path(include file name) : "); // 저장할 파일 경로 입력
-				scanf("%s", temp);
-				if((fp = fopen(temp, "w")) == NULL) { // 저장할 파일 오픈
-					perror("fopen");
-					exit(1);
-				}
-				fputs(buf, fp); // 파일에 내용 입력
-				printf("file download completed ...\n"); // 저장 완료
-				fclose(fp);
+
+      	/* 다운로드 위치 설정 */
+      	printf("input file path (include file name): ");
+      	scanf("%s", temp);
+
+      	/* 다운로드 수행 */
+      	if((fp = fopen(temp, "w")) == NULL) {
+        	perror("fopen");
+        	exit(1);
+      	}
+      	fputs(buf, fp);
+
+      	printf("====== [DOWNLOAD COMPLETED] ======\n"); // 저장 완료
+      	fclose(fp);
 			}
->>>>>>> 63c25e97edf8d36f71f05fbeda8f4d2efda3d0e3
 		}
 		else if(!strcmp(buf, "exit")) {
 			printf("[EXIT]\n");
