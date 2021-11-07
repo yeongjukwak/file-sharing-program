@@ -95,9 +95,17 @@ int main() {
 							perror("[UPLOAD] recv of file_path and file_content");
 							exit(1);
 						}
+<<<<<<< HEAD
 
 						/* '\n'으로 파일경로 와 파일내용 구분 */
 						temp_file = strtok(buf, "\n");
+=======
+						if(!strcmp(buf, "fopen")) { // 클라이언트로부터 온 메세지가 fopen인 경우 파일 열기를 실패
+							printf("Client disconnected: file open failed\n");
+							break;
+						}
+						temp_file = strtok(buf, "\n"); // \n으로 파일의 이름과 파일 내용을 구분
+>>>>>>> 63c25e97edf8d36f71f05fbeda8f4d2efda3d0e3
 						temp_file = strtok(NULL, "\n");
 
 						/* 파일내용을 하나의 문자열로 저장 */
@@ -162,6 +170,7 @@ int main() {
 							perror("recv of file");
 							exit(1);
 						}
+<<<<<<< HEAD
 
 						printf("[DOWNLOAD] filename: %s\n", buf);
 						memset(file, '\0', BUFSIZ);
@@ -194,6 +203,40 @@ int main() {
 						printf("[EXIT]\n");
 						break;
 					} else { printf("[NOT FOUND]\n"); }
+=======
+						if(!fileexistcheck(buf)) { // 파일명이 파일리스트에 존재하는지 확인
+							printf("%s: file does not exist on the server\n", buf);
+							strcpy(buf, "not exist"); // 파일이 서버에 없음을 알리기 위해 not exist 전송
+							if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { 
+								perror("send of sucess message");
+								break;
+							}
+						}
+						else {
+							printf("%s\n", buf);
+							memset(file, '\0', BUFSIZ);
+							strcpy(file, "./filelist/");
+							strcat(file, buf); // 파일명에 경로 추가
+							if((fp = fopen(file, "r")) == NULL) { // 서버에 있는 파일 오픈
+								perror("fopen");
+								exit(1);
+							}
+							memset(buf, '\0', BUFSIZ);
+							memset(file, '\0', BUFSIZ);
+							while((fread(file, sizeof(char), 1, fp)) > 0) { // 파일 내용 buf에 저장
+								strcat(buf, file);
+							}
+							if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { // 파일 내용 전송
+								perror("send of download message");
+								exit(1);
+							}
+							printf("The contents of file send completed...\n"); // 전송 완료
+							fclose(fp);
+						}
+					} else {
+						printf("not found\n");
+					}
+>>>>>>> 63c25e97edf8d36f71f05fbeda8f4d2efda3d0e3
 				}			
 				exit(0);				
 		}
