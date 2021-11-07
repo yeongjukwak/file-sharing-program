@@ -72,6 +72,11 @@ int main(int argc, char* argv[]) {
 			scanf("%s", buf); // 업로드할 파일명 buf에 저장
 				
 			if((fp = fopen(buf, "r")) == NULL) { // 파일 오픈
+				strcpy(buf, "fopen");
+				if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { // 파일이 없을 경우나 열지 못한 경우 fopen을 서버로 보내고 클라이언트 종료
+					perror("send of fail message");
+					exit(1);
+				}
 				perror("fopen");
 				exit(1);
 			}
@@ -111,17 +116,21 @@ int main(int argc, char* argv[]) {
 				perror("recv of file content");
 				exit(1);
 			}
-			memset(temp, '\0', BUFSIZ);
-			printf("input file path(include file name) : "); // 저장할 파일 경로 입력
-			scanf("%s", temp);
-			if((fp = fopen(temp, "w")) == NULL) { // 저장할 파일 오픈
-				perror("fopen");
-				exit(1);
+			if(!strcmp(buf, "not exist")) { // not exist를 받은 경우 서버에 파일이 없음
+				printf("file dose not exist on the server\n");
 			}
-			fputs(buf, fp); // 파일에 내용 입력
-			printf("file download completed ...\n"); // 저장 완료
-			fclose(fp);
-
+			else {
+				memset(temp, '\0', BUFSIZ);
+				printf("input file path(include file name) : "); // 저장할 파일 경로 입력
+				scanf("%s", temp);
+				if((fp = fopen(temp, "w")) == NULL) { // 저장할 파일 오픈
+					perror("fopen");
+					exit(1);
+				}
+				fputs(buf, fp); // 파일에 내용 입력
+				printf("file download completed ...\n"); // 저장 완료
+				fclose(fp);
+			}
 		}
 		else {
 			printf("%s\n", buf);
