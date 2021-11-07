@@ -7,8 +7,11 @@
 #include <string.h>
 
 int main(int argc, char* argv[]) {
+	
+	/* 실행 도움말 */
 	if(argc != 3) {
-		printf("[help] ./client <IP> <PORT>\n");
+		printf("====== [HELP] ======\n");
+		printf("./client <IP> <PORT>\n");
 		exit(1);
 	}
 
@@ -35,99 +38,142 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 
+	/* 처음 통신시, 파일리스트 recv */
 	if(recv(clt_sock, buf, sizeof(buf), 0) == -1) {
-		perror("recv of filelist");
+		perror("[ERROR] recv of filelist");
 		exit(1);
 	}
 
-	printf("====filelist====\n");
+	printf("=========== [FILELIST] ===========\n");
 	printf("%s", buf);
+	printf("==================================\n");
 	
+	/* 메인 컨텐츠 */
 	while(1) {
+		printf("\n============ [CHOOSE] ============\n");
+		printf("[reset] [upload] [download] [exit]\n");
+		printf("==================================\n");
+
 		memset(buf, '\0', BUFSIZ);
-		printf("choose: ");
+		printf("Choose: ");
 
 		scanf("%s", buf);
 
+		/* 선택한 컨텐츠 send */
 		if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) {
-			perror("send of choose");
+			perror("[ERROR] send of choose");
 			exit(1);
 		}
-		strcpy(temp, buf);
-		memset(buf, '\0', sizeof(buf));
 
-		if(recv(clt_sock, buf, sizeof(buf), 0) == -1) {
-			perror("recv of choose");
-			exit(1);
+		if(!strcmp(buf, "reset")) { /* 파일리스트 새로고침 */
+			memset(buf, '\0', BUFSIZ);
+
+			if(recv(clt_sock, buf, sizeof(buf), 0) == -1) {
+      				perror("[RESET] recv of reset");
+      				exit(1);
+    			}
+
+			printf("\n=========== [FILELIST] ===========\n");
+ 			printf("%s", buf);
+		  printf("==================================\n");
 		}
-		if(!strcmp(temp, "reset")) {	
-			printf("\n====filelist reset====\n");
-	    	printf("%s", buf);
-		}
-		else if(!strcmp(temp, "upload")) {
-			printf("\n====upload service====\n");
-			printf("%s", buf);
+		else if(!strcmp(buf, "upload")) { /* 파일 업로드 */
 			memset(buf, '\0', BUFSIZ);
 			memset(temp, '\0', BUFSIZ);
-			scanf("%s", buf); // 업로드할 파일명 buf에 저장
-				
-			if((fp = fopen(buf, "r")) == NULL) { // 파일 오픈
-				perror("fopen");
+			
+			printf("\n======== [UPLOAD SERVICE] ========\n");
+			printf("Which file: ");
+
+			scanf("%s", buf);
+			
+			/* 업로드할 파일 읽어오기 */
+			if((fp = fopen(buf, "r")) == NULL) {
+				perror("[UPLOAD] open file");
 				exit(1);
 			}
-			strcat(buf, "\n"); // 파일명, 파일내용을 구분하기 위한 개행문자 추가
-			while((fread(temp, sizeof(char), 1, fp)) > 0) { // 파일 내용 buf에 추가
+
+			strcat(buf, "\n"); // 파일경로와  파일내용을 구분자('\n') 설정
+			
+			while((fread(temp, sizeof(char), 1, fp)) > 0) {
 				strcat(buf, temp);
 			}
 			
-			if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { // 파일명+파일내용 서버로 전송
-				perror("send of file");
+			/* 파일경로 및 파일내용 send */
+			if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) {
+				perror("[UPLOAD] send of upload");
 				exit(1);
 			}
 			fclose(fp);
-			if(recv(clt_sock, buf, sizeof(buf), 0) == -1) { // 성공 여부 메세지 받기
-				perror("recv of success message");
+
+			/* 업로드 성공 여부 메시지 recv */
+			if(recv(clt_sock, buf, sizeof(buf), 0) == -1) {
+				perror("[UPLOAD] recv of upload message");
 				exit(1);
 			}
-			if(!strcmp(buf, "exist")) { // 파일명이 이미 존재하는 경우, 업로드 실패
-				printf("filename exists on the server(upload failed)\n");
+
+			if(!strcmp(buf, "exist")) { /* 업로드 실패 (파일명 중복) */
+				printf("======= [FILENAME EXISTS] =======\n");
 			}
-			else { // 업로드 완료
+			else { /* 업로드 완료 */
 				printf("%s\n", buf);
 			}
 		}
-		else if(!strcmp(temp, "download")) {
-			printf("\n====download service====\n");
-	        printf("%swhich file? : ", buf);
+		else if(!strcmp(buf, "download")) { /* 파일 다운로드 */
 			memset(buf, '\0', BUFSIZ);
-			scanf("%s", buf); // 다운로드할 파일 선택
+
+			printf("\n======= [DOWNLOAD SERVICE] ======\n");
+
+			// 파일리스트 recv
+    	if(recv(clt_sock, buf, sizeof(buf), 0) == -1) {
+      	perror("[DOWNLOAD] recv of filelist");
+      	exit(1);
+    	}
+			printf("\n=========== [FILELIST] ===========\n");
+      printf("%s", buf);
+      printf("==================================\n");
 			
-			if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { // 파일명 전송
-				perror("send of filename");
-				exit(1);
-			}
 			memset(buf, '\0', BUFSIZ);
-			if(recv(clt_sock, buf, sizeof(buf), 0) == -1) { // 파일 내용 받기
-				perror("recv of file content");
+
+			/* 다운로드할 파일명 입력 */
+	    printf("Which file: ");
+			
+			scanf("%s", buf);
+			
+			/* 다운로드할 파일명 send */
+			if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) {
+				perror("[DOWNLOAD] send of filename");
 				exit(1);
 			}
+
+			memset(buf, '\0', BUFSIZ);
+			
+			/* 다운로드할 파일내용 recv */
+			if(recv(clt_sock, buf, sizeof(buf), 0) == -1) {
+				perror("[DOWNLOAD] recv of file content");
+				exit(1);
+			}
+
 			memset(temp, '\0', BUFSIZ);
-			printf("input file path(include file name) : "); // 저장할 파일 경로 입력
+
+			/* 다운로드 위치 설정 */
+			printf("input file path (include file name): ");
 			scanf("%s", temp);
-			if((fp = fopen(temp, "w")) == NULL) { // 저장할 파일 오픈
+
+			/* 다운로드 수행 */
+			if((fp = fopen(temp, "w")) == NULL) {
 				perror("fopen");
 				exit(1);
 			}
-			fputs(buf, fp); // 파일에 내용 입력
-			printf("file download completed ...\n"); // 저장 완료
+			fputs(buf, fp);
+
+			printf("====== [DOWNLOAD COMPLETED] ======\n"); // 저장 완료
 			fclose(fp);
-
 		}
-		else {
-			printf("%s\n", buf);
+		else if(!strcmp(buf, "exit")) {
+			printf("[EXIT]\n");
+			break;
 		}
-		printf("end\n\n");
-
+		else { printf("[NOT FOUND]\n"); }
 	}
 	close(clt_sock);
 	return 0;

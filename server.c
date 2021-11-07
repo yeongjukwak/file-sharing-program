@@ -12,6 +12,7 @@
 #define IP "127.0.0.1"
 #define FILELIST_SH "./filelist.sh"
 #define FILELIST_TXT "./filelist.txt"
+#define FILELIST_DIR "./filelist/"
 
 void filelist(char* buf);
 int fileexistcheck(char *buf);
@@ -45,6 +46,7 @@ int main() {
 		exit(1);
 	}
 
+	/* 메인 컨텐츠 */
 	while(1) {
 		if((clt_sock = accept(svr_sock, (struct sockaddr*)&clt_sin, &clt_len)) == -1) {
 			perror("accept");
@@ -54,119 +56,144 @@ int main() {
 		switch(fork()) {
 			case 0:
 				close(svr_sock);
+				memset(buf, '\0', BUFSIZ);
 				
-				filelist(buf); //파일 리스트 불러오기
+				/* 처음 통신시, 파일리스트 send */
+				filelist(buf);
 				if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) {
-					perror("send of filelist");
+					perror("[ERROR] send of filelist");
 					exit(1);
 				}
 
 				while(1){
-					memset(buf, '\0', sizeof(buf));
+					memset(buf, '\0', BUFSIZ);
 					
+					/* 선택한 컨텐츠 recv */
 					if(recv(clt_sock, buf, sizeof(buf), 0) == -1) {
-						perror("recv of reset");
+						perror("[ERROR] recv of choose");
 						exit(1);
 					}
-					if(strcmp(buf, "reset") == 0) {
-						memset(buf, '\0', sizeof(buf));
-						printf("reset\n");
 
-						filelist(buf); //파일 리스트 불러오기
-						if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) {
-      		    					perror("send of filelist");
-         						exit(1);
-			        		}
-					} else if(!strcmp(buf, "upload")) {
-						printf("upload\n");
-						strcpy(buf, "which file? : ");
-						if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { // 파일 선택 메세지 전송
-							perror("send of upload message");
-							exit(1);
-						}
+					/* 파일리스트 새로고침 */
+					if(!strcmp(buf, "reset")) {
 						memset(buf, '\0', BUFSIZ);
-						if(recv(clt_sock, buf, sizeof(buf), 0) == -1) { // 파일 경로와 내용 전달 받음
-							perror("recv of file");
+						printf("[RESET]\n");
+
+						/* 파일리스트 send */
+						filelist(buf);
+						if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) {
+							perror("[RESET] send of filelist");
 							exit(1);
 						}
-						temp_file = strtok(buf, "\n"); // \n으로 파일의 이름과 파일 내용을 구분
+					}
+					else if(!strcmp(buf, "upload")) { /* 파일 업로드 */
+						memset(buf, '\0', BUFSIZ);
+						printf("[UPLOAD]\n");
+
+						/* 파일경로 및 파일내용 recv */
+						if(recv(clt_sock, buf, sizeof(buf), 0) == -1) {
+							perror("[UPLOAD] recv of file_path and file_content");
+							exit(1);
+						}
+
+						/* '\n'으로 파일경로 와 파일내용 구분 */
+						temp_file = strtok(buf, "\n");
 						temp_file = strtok(NULL, "\n");
-						while(temp_file != NULL) { // 파일 내용을 하나의 문자열로 저장 - file
+
+						/* 파일내용을 하나의 문자열로 저장 */
+						while(temp_file != NULL) {
 							strcat(file, temp_file);
 							strcat(file, "\n");
 							temp_file = strtok(NULL, "\n");
 						}
+						
 						temp_file = strtok(buf, "/");
-						while(temp_file != NULL) { // 파일 경로에서 파일명만 추출
+
+						/* 파일경로에서 파일명만 추출 */
+						while(temp_file != NULL) {
 							strcpy(file_name, temp_file);
 							temp_file = strtok(NULL, "/");
 						}
-						if(fileexistcheck(file_name)) { // 파일명이 파일리스트에 존재하는가?
+
+						/* 파일명이 파일리스트에 존재하는 경우 (중복) */
+						if(fileexistcheck(file_name)) {
 							strcpy(buf, "exist");
-							if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { // 이미 존재할 경우 exist 전송
-								perror("send of sucess message");
+							if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) {
+								perror("[UPLOAD] send of exist message");
 								exit(1);
 							}
 						}
-						else {
-							strcpy(buf, "./filelist/"); // 서버의 filelist디렉토리에 저장하기 위해 경로 추가
-							strcat(buf, file_name); // 서버의 저장될 파일 경로 - buf
+						else { /* 파일명이 중복이 아닌 경우 */
+							
+							/* 파일의 업로드 위치 설정 */
+							strcpy(buf, FILELIST_DIR);
+							strcat(buf, file_name);
 
+							/* 업로드 수행 */
 							if((fp = fopen(buf, "w")) == NULL) { 
-								perror("file open");
+								perror("[UPLOAD] open file");
 								exit(1);
 							}
-							fputs(file, fp); // 서버에 파일 저장
+							fputs(file, fp);
 							fclose(fp);
-					
-							if((fp = fopen("./filelist.txt", "a")) == NULL) {
-								perror("file open");
-								exit(1);
-							}
-							fputs(file_name, fp); // 리스트에 파일 추가
-							fputs("\n", fp);
-							fclose(fp);
-							strcpy(buf, "upload completed\n");
-							if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { // 파일 저장 완료 메세지 전송
-								perror("send of sucess message");
+							
+							/* 업로드 성공 메시지 send */
+							strcpy(buf, "======= [UPLOAD COMPLETED!] ======\n");
+							if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) {
+								perror("[UPLOAD] send of success message");
 								exit(1);							
 							}
 						}
-					} else if(!strcmp(buf, "download")) {
-						printf("download\n");
+					} else if(!strcmp(buf, "download")) { /* 파일 다운로드 */
 						memset(buf, '\0', BUFSIZ);
-						filelist(buf); //파일 리스트 불러오기
-						if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { // 다운로드를 위해 파일 리스트를 새로 전송
-							perror("send of download message");
+						printf("[DOWNLOAD]\n");
+						
+						/* 파일리스트 send */
+						filelist(buf);
+						if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) {
+							perror("[DOWNLOAD] send of filelist");
 							exit(1);
 						}
+
 						memset(buf, '\0', BUFSIZ);
-						if(recv(clt_sock, buf, sizeof(buf), 0) == -1) { // 클라이언트가 고른 파일명 받기
+
+						/* 다운로드할 파일명 recv */
+						if(recv(clt_sock, buf, sizeof(buf), 0) == -1) {
 							perror("recv of file");
 							exit(1);
 						}
-						printf("%s\n", buf);
+
+						printf("[DOWNLOAD] filename: %s\n", buf);
 						memset(file, '\0', BUFSIZ);
-						strcpy(file, "./filelist/");
-						strcat(file, buf); // 파일명에 경로 추가
-						if((fp = fopen(file, "r")) == NULL) { // 서버에 있는 파일 오픈
+
+						/* 다운로드할 파일명에 파일리스트 경로 추가 */
+						strcpy(file, FILELIST_DIR);
+						strcat(file, buf);
+
+						/* 다운로드할 파일내용 send */
+						if((fp = fopen(file, "r")) == NULL) {
 							perror("fopen");
 							exit(1);
 						}
+
 						memset(buf, '\0', BUFSIZ);
 						memset(file, '\0', BUFSIZ);
-						while((fread(file, sizeof(char), 1, fp)) > 0) { // 파일 내용 buf에 저장
+						
+						while((fread(file, sizeof(char), 1, fp)) > 0) {
 							strcat(buf, file);
 						}
-						if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) { // 파일 내용 전송
-							perror("send of download message");
+
+						if(send(clt_sock, buf, strlen(buf)+1, 0) == -1) {
+							perror("[DOWNLOAD] send of download");
 							exit(1);
 						}
-						printf("The contents of file send completed...\n"); // 전송 완료
+
+						printf("[DOWNLOAD COMPLETED]\n"); // 전송 완료
 						fclose(fp);
-					} else {
-						printf("not found\n");
-					}
+					} else if(!strcmp(buf, "exit")) {
+						printf("[EXIT]\n");
+						break;
+					} else { printf("[NOT FOUND]\n"); }
 				}			
 				exit(0);				
 		}
@@ -175,6 +202,7 @@ int main() {
 	return 0;
 }
 
+/* 파일리스트 불러오기 */
 void filelist(char* buf) {
 	int fd, n;
 
@@ -193,7 +221,8 @@ void filelist(char* buf) {
 	close(fd);
 }
 
-int fileexistcheck(char *filename) { // 파일리스트에 filename이 존재하는지 확인하는 메소드
+/* 파일리스트에 동일한 파일명이 존재하는 체크 */
+int fileexistcheck(char *filename) {
 	char list[BUFSIZ] = {0, };
 	filelist(list);
 	char *file;
