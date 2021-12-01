@@ -6,8 +6,18 @@
 박종건(조원) - 발표자료 제작 및 소켓 프로그래밍 구현<br>
 양현규(조원) - 터미널 UI 구현 및 README 제작<br>
 
-## 소개
-###리눅스 환경 내 다중 사용자 이용이 가능한 파일 공유 시스템(미니 드롭박스)
+## 프로젝트 소개
+리눅스 환경 내 다중 사용자 이용이 가능한 파일 공유 시스템(미니 드롭박스)<br>
+
+### 기능
+1. 파일 리스트
+- 서버 파일에 존재, 클라이언트가 다운 받을 수 있는 파일들을 보여주는 리스트 이다. 
+2. 다운로드
+- 클라이언트가 서버에 존재 하는 파일을 다운로드 받음, 다운로드 실행시 파일명과 경로를 입력시 다운로드 받게됨.
+3. 업로드
+- 클라이언트 측에서 파일명을 입력 한 뒤 서버로 파일을 전송
+- 서버는 받은 파일을 서버 내 파일리스트에 저장
+
 ### 파일 구조
 &nbsp;**.**<br>
 ├── **README.md**<br>
@@ -23,7 +33,15 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── **download** [다운로드한 파일들이 있는 디렉토리]<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── **upload** [업로드할 파일들이 있는 디렉토리]<br>
 
+## 프로젝트 결과물
+<RESET 구조><br>
+<img src="https://user-images.githubusercontent.com/70936623/144296138-6a9f0da0-5399-469e-8223-eccc08dc8977.png" width="800" height="400"/>
 
+<DOWNLOAD 구조><br>
+<img src="https://user-images.githubusercontent.com/70936623/144296145-f45b234e-3e73-4c42-80cd-45923d73af58.png" width="800" height="400"/>
+
+<UPLOAD 구조><br>
+<img src="https://user-images.githubusercontent.com/70936623/144297146-ea046256-6aa5-46a7-9d4b-6e989bfa7b86.png" width="800" height="400"/>
 ## 프로그램 실행방법
 
 **환경 설정**
