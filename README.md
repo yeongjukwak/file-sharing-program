@@ -37,12 +37,35 @@
 
 ## 프로젝트 결과물
 ### 실행 화면
- - SERVER
-<img src="https://user-images.githubusercontent.com/70936623/144299363-e8ad654f-397d-412e-8f97-25a91196b3c1.PNG" width="800" height="200"/>
+1. 파일 실행
+  - server파일 실행
+  <img src="https://user-images.githubusercontent.com/70936623/144375281-95a8c036-8da1-4691-9998-75cf23685eb4.PNG" width="800" height="50"/>
 
+  - client 파일 실행
+  <img src="https://user-images.githubusercontent.com/70936623/144375410-08a47427-58e6-40f4-8ad4-a3d9731221af.PNG" width="600" height="200"/>
 
-- CLIENT
-<img src="https://user-images.githubusercontent.com/70936623/144299368-11c3d06b-65a2-4180-8bea-aa4f77a2c441.PNG" width="800" height="500"/>
+2. RESET
+  - upload 작업 후 reset
+  <img src="https://user-images.githubusercontent.com/70936623/144375864-e8c9aede-d6b8-459a-855a-bca85a966237.PNG" width="350" height="400"/>
+ 
+3. UPLOAD
+  - client 업로드 성공
+  <img src="https://user-images.githubusercontent.com/70936623/144376340-6b1e956c-6a2c-406f-a139-52f76aeda3ff.PNG" width="350" height="400"/>
+ 
+  - client 업로드 중복
+  <img src="https://user-images.githubusercontent.com/70936623/144376628-3b0747f2-c88c-458f-8959-7caccaf66174.PNG" width="350" height="400"/>
+
+  - server  업로드 중복
+  <img src="https://user-images.githubusercontent.com/70936623/144377126-47116739-ba96-4301-90d4-45b3afde3be4.PNG" width="800" height="50"/>
+ 
+ 4. DOWNLOAD
+   - client 다운로드 성공
+   <img src="https://user-images.githubusercontent.com/70936623/144377714-b8e44d2e-836a-4eb2-96df-3d71092ce01d.PNG" width="350" height="400"/>
+   - client 다운로드 실패
+   <img src="https://user-images.githubusercontent.com/70936623/144377817-9a36cda0-944f-4f19-b2c1-9b7921209fed.PNG" width="350" height="350"/>
+   - server 다운로드
+   <img src="https://user-images.githubusercontent.com/70936623/144377968-34590eda-6f22-412f-93a0-cb6ece730de3.PNG" width="300" height="100"/>
+
  
  
  
@@ -88,4 +111,3 @@ $ ./client1 127.0.0.1 9000 /* ex */
 2. 활용방안
 - 리눅스 환경내 다른 디렉토리에서 필요한 파일을 아무때나 가져다 사용이 가능하다.
 - 웹의 영역으로 확장시, 드롭박스와 같은 개인 클라우드로 사용 가능하다
-- 
