@@ -2,12 +2,14 @@
 파일 공유 프로그램
 
 ## 팀원
-곽영주(조장) - 발표 및 파일 입출력 구현<br>
-박종건(조원) - 발표자료 제작 및 소켓 프로그래밍 구현<br>
-양현규(조원) - 터미널 UI 구현 및 README 제작<br>
+곽영주(조장) - 발표 및 총괄, 소켓 통신, 파일 리스트 구현<br>
+박종건(조원) - 발표자료 제작 및 업로드, 다운로드 구현<br>
+양현규(조원) - 터미널 UI 구현 및 README 작성<br>
 
 ## 프로젝트 소개
-리눅스 환경 내 다중 사용자 이용이 가능한 파일 공유 시스템(미니 드롭박스)<br>
+드롭박스처럼 파일을 공유하고 다운로드할 수 있는 기능을 리눅스 환경 내 다중 사용자들이 터미널 UI를 통해 파일을 공유하고 다운로드할 수 있는 프로그램이다.<br>
+
+## 개발 내용
 
 ### 기능
 1. 파일 리스트
@@ -20,7 +22,9 @@
 4. RESET
 - 서버측 파일리스트를 갱신.
 
-### 파일 구조
+## 결과물 소개
+
+### [파일 구조]
 &nbsp;**.**<br>
 ├── **README.md**<br>
 ├── **Makefile** [서버와 클라이언트 컴파일해주는 Makefile]<br>
@@ -35,54 +39,21 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── **download** [다운로드한 파일들이 있는 디렉토리]<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── **upload** [업로드할 파일들이 있는 디렉토리]<br>
 
-## 프로젝트 결과물
-### 실행 화면
-1. 파일 실행
-  - server파일 실행
-  <img src="https://user-images.githubusercontent.com/70936623/144375281-95a8c036-8da1-4691-9998-75cf23685eb4.PNG" width="800" height="50"/>
+### [다이어그램]
 
-  - client 파일 실행
-  <img src="https://user-images.githubusercontent.com/70936623/144375410-08a47427-58e6-40f4-8ad4-a3d9731221af.PNG" width="600" height="200"/>
+![다이어그램](https://user-images.githubusercontent.com/77434165/144417835-3db4fbdc-3654-4eac-aaa4-15a5c23810a3.png)
 
-2. RESET
-  - upload 작업 후 reset
-  <img src="https://user-images.githubusercontent.com/70936623/144375864-e8c9aede-d6b8-459a-855a-bca85a966237.PNG" width="350" height="400"/>
- 
-3. UPLOAD
-  - client 업로드 성공
-  <img src="https://user-images.githubusercontent.com/70936623/144376340-6b1e956c-6a2c-406f-a139-52f76aeda3ff.PNG" width="350" height="400"/>
- 
-  - client 업로드 중복
-  <img src="https://user-images.githubusercontent.com/70936623/144376628-3b0747f2-c88c-458f-8959-7caccaf66174.PNG" width="350" height="400"/>
+### [터미널 UI]
 
-  - server  업로드 중복
-  <img src="https://user-images.githubusercontent.com/70936623/144377126-47116739-ba96-4301-90d4-45b3afde3be4.PNG" width="800" height="50"/>
- 
- 4. DOWNLOAD
-   - client 다운로드 성공
-   <img src="https://user-images.githubusercontent.com/70936623/144377714-b8e44d2e-836a-4eb2-96df-3d71092ce01d.PNG" width="350" height="400"/>
-   - client 다운로드 실패
-   <img src="https://user-images.githubusercontent.com/70936623/144377817-9a36cda0-944f-4f19-b2c1-9b7921209fed.PNG" width="350" height="350"/>
-   - server 다운로드
-   <img src="https://user-images.githubusercontent.com/70936623/144377968-34590eda-6f22-412f-93a0-cb6ece730de3.PNG" width="300" height="100"/>
+![터미널UI](https://user-images.githubusercontent.com/77434165/144418518-c8d85cd0-e69b-4794-87e2-73d77e05b074.png)
 
- 
- 
- 
-### 다이어그램
+### [시연영상]
 
-- <RESET 구조>
-<img src="https://user-images.githubusercontent.com/70936623/144296138-6a9f0da0-5399-469e-8223-eccc08dc8977.png" width="800" height="400"/>
+[www.youtube.com/watch?v=H0u1dRW2RVM](https://www.youtube.com/watch?v=H0u1dRW2RVM)
 
-- <DOWNLOAD 구조>
-<img src="https://user-images.githubusercontent.com/70936623/144296145-f45b234e-3e73-4c42-80cd-45923d73af58.png" width="800" height="400"/>
+## 사용 방법
 
-- <UPLOAD 구조>
-<img src="https://user-images.githubusercontent.com/70936623/144297146-ea046256-6aa5-46a7-9d4b-6e989bfa7b86.png" width="800" height="400"/>
-
-## 프로그램 실행방법
-
-**환경 설정**
+**1. 환경 설정**
 ```bash
 /* 모든 파일을 같은 위치(경로)상에 둔다. */
 $ chmod 777 filelist.sh
@@ -90,18 +61,46 @@ $ make clean
 $ make all
 ```
 
-**SERVER 실행**
+**2. SERVER 실행**
 ```bash
 $ ./server
 ```
 
-**CLIENT 실행**
+**3. CLIENT 실행**
 ```bash
 $ cd ./client
-$ ./client1 127.0.0.1 9000 /* ex */
+$ ./client1 127.0.0.1 9000
+$ ./client2 127.0.0.1 9000 /* 다중 사용자 사용할 경우 client.c 컴파일해서 실행파일 생성 */
 ```
+<img src="https://user-images.githubusercontent.com/70936623/144375410-08a47427-58e6-40f4-8ad4-a3d9731221af.PNG" width="600" height="200"/>
 
-**[시연영상](https://www.youtube.com/watch?v=H0u1dRW2RVM)**
+**4. UPLOAD**
+```bash
+Choose: upload
+Which file: 업로드할 파일명
+```
+<img src="https://user-images.githubusercontent.com/70936623/144376340-6b1e956c-6a2c-406f-a139-52f76aeda3ff.PNG" width="350" height="400"/>
+
+**4-1. UPLOAD 파일명 중복**
+![image](https://user-images.githubusercontent.com/77434165/144420290-8ac8a500-9a84-49fd-8989-e5b7121acc24.png)
+
+**5. RESET (다운로드 파일리스트)**
+```bash
+Choose: reset
+```
+<img src="https://user-images.githubusercontent.com/70936623/144375864-e8c9aede-d6b8-459a-855a-bca85a966237.PNG" width="350" height="400"/>
+
+**6. DOWNLOAD**
+```bash
+Choose: download
+Which file: 다운로드할 파일명
+Input file path (include file name): 다운로드할 파일의 경로
+```
+![image](https://user-images.githubusercontent.com/77434165/144420904-e6297489-7520-4287-abf8-239bf9f8cc17.png)
+
+**6-1. DOWNLOAD 실패 (존재하지 않는 파일)**  
+
+![image](https://user-images.githubusercontent.com/77434165/144421096-8c5ef287-7693-468b-a1c7-3ca5788db675.png)
 
 ## 필요성 및 활용방안
 
