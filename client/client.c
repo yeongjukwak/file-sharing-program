@@ -6,7 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
-
+#include <dirent.h>
+#include <sys/stat.h>
 int main(int argc, char* argv[]) {
 	
 	/* 실행 도움말 */
@@ -17,7 +18,10 @@ int main(int argc, char* argv[]) {
 	}
 
 	signal(SIGINT, SIG_IGN);
-
+	DIR *dp;
+	char *cwd;
+	struct dirent *dent;
+	struct stat statbuf;
 	char* ip = argv[1];
 	int port = atoi(argv[2]);
 	struct sockaddr_in clt_sin;
@@ -85,6 +89,22 @@ int main(int argc, char* argv[]) {
 			memset(temp, '\0', BUFSIZ);
 			
 			printf("\n======== [UPLOAD SERVICE] ========\n");
+
+
+			/* 업로드할 파일 리스트.*/
+			cwd = getcwd(NULL,BUFSIZ);
+			dp = opendir(cwd);		
+			printf("\n========== [FILELIST FOR UPLOAD] ===========\n");
+			while((dent = readdir(dp)) != NULL)
+			{
+				lstat(dent->d_name,&statbuf);
+				if(S_ISREG(statbuf.st_mode)){
+					if(dent->d_name[0] =='.') continue;
+					printf("%s\n",dent->d_name);
+					}
+			}
+			closedir(dp);	
+			printf("\n=====================================\n");
 			printf("Which file: ");
 
 			scanf("%s", buf);
