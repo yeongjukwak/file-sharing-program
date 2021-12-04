@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
 					perror("[UPLOAD] send of fail message");
 					exit(1);
 				}
-
+				printf("file dose not exist\n");
 				continue;
 
 				//perror("fopen");

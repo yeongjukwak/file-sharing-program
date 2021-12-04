@@ -98,7 +98,7 @@ int main() {
 
 						/* 클라이언트에서 업로드할 파일명이 틀렸다고 recv */
 						if(!strcmp(buf, "fopen")) {
-							printf("Client disconnected: file open failed\n");
+							printf("Client error: file open failed\n");
               continue;
             }
 
