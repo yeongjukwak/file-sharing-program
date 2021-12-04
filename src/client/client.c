@@ -92,6 +92,7 @@ int main(int argc, char* argv[]) {
 
 
 			/* 업로드할 파일 리스트.*/
+			chdir("upload");
 			cwd = getcwd(NULL,BUFSIZ);
 			dp = opendir(cwd);		
 			printf("\n========== [FILELIST FOR UPLOAD] ===========\n");
